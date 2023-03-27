@@ -18,6 +18,7 @@ public class CategoriaMapper {
     }
     public CategoriaEntity update(CategoriaDTO categoria){
         CategoriaEntity categoriaEntity = new CategoriaEntity();
+        categoriaEntity.setId(categoria.getId());
         categoriaEntity.setNome(categoria.getNome());
         categoriaEntity.setDescricao(categoria.getDescricao());
         return categoriaEntity;
