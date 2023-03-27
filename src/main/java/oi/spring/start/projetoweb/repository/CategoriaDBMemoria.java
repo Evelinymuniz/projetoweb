@@ -25,7 +25,6 @@ public class CategoriaDBMemoria {
         return categoriaDTO;
     }
     public CategoriaDTO editar(CategoriaDTO categoriaDTO, Integer id){
-
         categoriaDTO.setId(id);
 
         Integer indice = null;

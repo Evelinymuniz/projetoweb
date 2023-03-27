@@ -3,7 +3,7 @@ package oi.spring.start.projetoweb.service;
 import jakarta.persistence.EntityNotFoundException;
 import oi.spring.start.projetoweb.model.dto.CategoriaDTO;
 import oi.spring.start.projetoweb.model.entity.CategoriaEntity;
-import oi.spring.start.projetoweb.repository.CategoriaDBMemoria;
+import oi.spring.start.projetoweb.model.mapper.CategoriaMapper;
 import oi.spring.start.projetoweb.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,36 +15,54 @@ import java.util.Optional;
 public class CategoriaService {
     @Autowired
     private CategoriaRepository repository;
+    @Autowired
+    private CategoriaMapper mapper;
 
-    private CategoriaDBMemoria repositorioDBMemoria = new CategoriaDBMemoria();
-    public CategoriaDTO pegarCategoriaById(Integer id){
+    public CategoriaDTO pegarPorId(Integer id) {
+
         Optional<CategoriaEntity> categoriaEntityOp =
                 repository.findById(id);
-        if(categoriaEntityOp.isPresent()){
-            CategoriaEntity categoriaEntity = categoriaEntityOp.get();
-            return new CategoriaDTO().update(categoriaEntity);
-        }
-        throw new EntityNotFoundException();
-    }
-    public CategoriaDTO criar(CategoriaDTO categoriaDTO){
-        CategoriaEntity categoria =  new CategoriaEntity().update(categoriaDTO);
-        categoria = repository.save(categoria);
 
-        return new CategoriaDTO().update(categoria);
+        if(categoriaEntityOp.isPresent()) {
+            CategoriaEntity categoriaEntity = categoriaEntityOp.get();
+            return mapper.update(categoriaEntity);
+        }
+
+        throw new EntityNotFoundException("Categoria não encontrada");
+    }
+
+
+    public CategoriaDTO criar(CategoriaDTO categoriaDTO){
+        CategoriaEntity categoria =  mapper.update(categoriaDTO);
+        categoria = repository.save(categoria);
+        return mapper.update(categoria);
     }
     public CategoriaDTO editar(CategoriaDTO categoriaDTO, Integer id){
-        CategoriaDTO categoriaDTOFromDB = repositorioDBMemoria.pegarUm(id);
-        CategoriaDTO categoriaDTOAtualizada = categoriaDTOFromDB.update(categoriaDTO);
-        return repositorioDBMemoria.editar(categoriaDTOAtualizada);
+
+       if (repository.existsById(id)){
+           CategoriaEntity categoriaEntity = mapper.update(categoriaDTO);
+           categoriaEntity.setId(id);
+           categoriaEntity = repository.save(categoriaEntity);
+
+           return mapper.update(categoriaEntity);
+       }
+       throw new EntityNotFoundException("Categoria não encontrada");
     }
     public void deletar(Integer id){
-        repositorioDBMemoria.deletar(id);
+        Optional<CategoriaEntity> categoriaEntityOp = repository.findById(id);
+
+        if (categoriaEntityOp.isPresent()){
+            CategoriaEntity categoriaEntity = categoriaEntityOp.get();
+            repository.delete(categoriaEntity);
+            return;
+        }
+        throw new EntityNotFoundException("categoria não encontrada");
 
     }
-    public List<CategoriaDTO> getCategoriasDTOs(){
-        List <CategoriaEntity> listaEntites = repository.findAll();
-        return listaEntites.stream().map(categoriaEntity ->
-                new CategoriaDTO().update(categoriaEntity)).toList();
+    public List<CategoriaDTO> listar(){
+        List <CategoriaEntity> listaEntities = repository.findAll();
+        return mapper.updateListDTO(listaEntities);
+
     }
 
 

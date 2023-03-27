@@ -1,50 +1,80 @@
 package oi.spring.start.projetoweb.controller;
 
+
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import oi.spring.start.projetoweb.model.dto.CategoriaDTO;
+import oi.spring.start.projetoweb.model.dto.MensagemDTO;
 import oi.spring.start.projetoweb.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/categorias")
+@Slf4j
 public class CategoriaController {
 
-    private List<CategoriaDTO> lista = new ArrayList<>();
-    private Integer contador = 1;
     @Autowired
     private CategoriaService categoriaService;
 
     @GetMapping
-    public  List<CategoriaDTO> listar(){
-        return lista;
-    }
+    public ResponseEntity<Object> listar(){
+        try {
+            return ResponseEntity.ok(categoriaService.listar());
+        }catch (Exception ex){
+            log.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MensagemDTO(ex.getMessage()));
+        }
 
+    }
     @GetMapping("/{id}")
-    public CategoriaDTO pegarUm(@PathVariable("id") Integer id){
-      return categoriaService.pegarCategoriaById(id);
+    public ResponseEntity <Object> pegarUm(@PathVariable("id") Integer id){
+      try {
+          return ResponseEntity.ok(categoriaService.pegarPorId(id));
+      }catch (EntityNotFoundException ex){
+          log.error(ex.getMessage());
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MensagemDTO(ex.getMessage()));
+
+      }
 
     }
-
-
     @PostMapping
-    public CategoriaDTO criar(@RequestBody CategoriaDTO categoriaDTO){
-        return categoriaService.criar(categoriaDTO);
+    public ResponseEntity<Object> criar(@RequestBody CategoriaDTO categoriaDTO){
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.criar(categoriaDTO));
+        }catch (Exception ex){
+            log.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MensagemDTO(ex.getMessage()));
+
+        }
 
     }
-
     @PutMapping("/{id}")
-    public CategoriaDTO editar(@RequestBody CategoriaDTO categoriaDTO, @PathVariable("id") Integer id){
-       return categoriaService.editar(categoriaDTO,id);
+    public ResponseEntity<Object> editar(@RequestBody @Valid CategoriaDTO categoriaDTO, @PathVariable("id") Integer id){
+      try {
+          return ResponseEntity.ok(categoriaService.editar(categoriaDTO,id));
+      }catch (Exception ex){
+          log.error(ex.getMessage());
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MensagemDTO(ex.getMessage()));
+      }
     }
-
     @DeleteMapping("/{id}")
-    public String deletar(@PathVariable("id") Integer id){
-        categoriaService.deletar(id);
-        return "Categoria " + id + " excluida com sucesso";
+    public ResponseEntity<Object> deletar(@PathVariable("id") Integer id){
+        try{
+            categoriaService.deletar(id);
+            return ResponseEntity.ok(new MensagemDTO("Categoria com id " + id + " removido com sucesso!"));
+    } catch (EntityNotFoundException ex){
+            log.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MensagemDTO(ex.getMessage()));
+        }catch (Exception ex){
+            log.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MensagemDTO(ex.getMessage()));
+
+        }
     }
 
 }
