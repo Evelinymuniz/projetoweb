@@ -27,5 +27,13 @@
 4. PUT http://localhost:8080/livros/id - Atualiza as informações de um livro existente
 5. DELETE http://localhost:8080/livros/id - Remove um livro da lista
 
+Este projeto web foi desenvolvido para a disciplina de Programação Web 2 com o professor Pedro Bomfim.
+
+Gostaríamos de agradecer ao professor Pedro Bomfim por sua orientação e suporte durante todo o processo de desenvolvimento deste projeto web.
+Suas sugestões e feedbacks foram fundamentais para alcançarmos os resultados desejados.
+
+
+
+
 
 
